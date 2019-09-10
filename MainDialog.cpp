@@ -4,12 +4,14 @@
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QTimer>
 #include <QClipboard>
 #include <QMimeData>
 #include <QtWidgets/QMessageBox>
 #include <Windows.h>
 
 MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
+	QTimer::singleShot(0, this, SLOT(on_pushButton_Cancel_clicked()));
 	ui.setupUi(this);
 	initMenu();
 	setWindowFlags(Qt::Window
@@ -20,14 +22,14 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
 	isExit = false;
 	if (!RegisterHotKey((HWND) this->winId(), WM_MYHOTKEY, MOD_ALT, VK_F6)) {
 		QMessageBox::critical(this, 
-			tr("ショットカット Ctrl+F6 は既に使用されています。サービスの使用は影響される恐れがありますので、チェックしてください。"),
-			tr("エラー"));
+			tr("エラー"),
+			tr("ショットカット Ctrl+F6 は既に使用されています。サービスの使用は影響される恐れがありますので、チェックしてください。"));
 		isExit = true;
 		this->close();
+		exit(1);
 	}
 
 	SetClipboardViewer((HWND) this->winId());
-
 	on_listWidget_currentRowChanged(-1);
 }
 

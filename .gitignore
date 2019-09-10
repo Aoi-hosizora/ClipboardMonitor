@@ -4,6 +4,8 @@ Win32/
 ipch/
 GeneratedFiles/
 
+Build/
+Build.zip
 
 *.opensdf
 *.sdf

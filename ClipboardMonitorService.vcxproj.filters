@@ -65,5 +65,7 @@
   <ItemGroup>
     <None Include="ClipboardMonitorService.pri" />
     <None Include="ClipboardMonitorService.pro" />
+    <None Include=".gitignore" />
+    <None Include="readme.md" />
   </ItemGroup>
 </Project>

@@ -111,8 +111,10 @@
     <ClInclude Include="ListWidget.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
     <None Include="ClipboardMonitorService.pri" />
     <None Include="ClipboardMonitorService.pro" />
+    <None Include="readme.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
