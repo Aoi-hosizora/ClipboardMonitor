@@ -1,7 +1,11 @@
 #include "MainDialog.h"
+#include "ClipItem.h"
 
 #include <QCloseEvent>
 #include <QKeyEvent>
+#include <QDebug>
+#include <QClipboard>
+#include <QMimeData>
 #include <QtWidgets/QMessageBox>
 #include <Windows.h>
 
@@ -10,6 +14,7 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
 	setWindowFlags(Qt::Window
 		| Qt::WindowCloseButtonHint
 		| Qt::WindowMinimizeButtonHint
+		| Qt::WindowMaximizeButtonHint
 		| Qt::WindowStaysOnTopHint);
 	isExit = false;
 	if (!RegisterHotKey((HWND) this->winId(), WM_MYHOTKEY, MOD_ALT, VK_F6)) {
@@ -19,6 +24,9 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
 		isExit = true;
 		this->close();
 	}
+
+	SetClipboardViewer((HWND) this->winId());
+	on_listWidget_currentRowChanged(-1);
 }
 
 bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *result) {
@@ -26,11 +34,17 @@ bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *r
 	Q_UNUSED(result)
 	auto msg = reinterpret_cast<MSG *>(message);
 
-	if (msg->message == WM_HOTKEY) {
+	switch (msg->message) {
+	case WM_HOTKEY:
 		if (msg->wParam == WM_MYHOTKEY) {
 			this->show();
 			return true;
 		}
+		break;
+	case WM_DRAWCLIPBOARD:
+		addClipItem();
+		return true;
+		break;
 	}
 	return false;
 }
@@ -59,19 +73,64 @@ void MainDialog::keyPressEvent(QKeyEvent *event) {
 	}
 }
 
+void MainDialog::on_listWidget_currentRowChanged(int row) {
+	ui.pushButton_Copy->setEnabled(row != -1);
+	ui.pushButton_Delete->setEnabled(row != -1);
+}
+
+void MainDialog::addClipItem() {
+	QClipboard *clipboard = QApplication::clipboard();
+	if (clipboard->mimeData()->hasText()) {
+		auto newadd = new ClipItem(clipboard->text());
+		clipItemList.append(newadd);
+
+		auto itm = new QListWidgetItem(ui.listWidget);
+
+		QString cnt = newadd->content;
+		itm->setText(QString("%1: \n%2")
+			.arg(newadd->copytime.toString("yyyy-MM-dd hh:mm:ss"))
+			.arg(cnt.replace(*new QRegExp("[\r|\n|\r\n]"), "")));
+		itm->setToolTip(newadd->content);
+
+		ui.listWidget->addItem(itm);
+	}
+	ui.label_Koukei->setText(QString("(全部 %1 項)").arg(ui.listWidget->count()));
+}
+
+// コピー(&C)
 void MainDialog::on_pushButton_Copy_clicked() {
-
+	int row = ui.listWidget->currentRow();
+	QApplication::clipboard()->setText(clipItemList.at(row)->content);
 }
 
+// 削除(&D)
 void MainDialog::on_pushButton_Delete_clicked() {
+	int row = ui.listWidget->currentRow();
+	ui.listWidget->takeItem(row);
+	ClipItem *del = clipItemList.at(row);
+	clipItemList.removeAll(del);
+	delete del;
 
+	ui.label_Koukei->setText(QString("(全部 %1 項)").arg(ui.listWidget->count()));
 }
 
+// クリア(&L)
+void MainDialog::on_pushButton_Clear_clicked() {
+	ui.listWidget->clear();
+	for (auto iter = clipItemList.begin(); iter != clipItemList.end();) {
+		clipItemList.removeAll(*iter);
+	}
+	qDeleteAll(clipItemList);
+	addClipItem();
+}
+
+// 終了(&X)
 void MainDialog::on_pushButton_Exit_clicked() {
 	isExit = true;
 	this->close();
 }
 
+// キャンセル(&C)
 void MainDialog::on_pushButton_Cancel_clicked() {
 	this->close();
 }

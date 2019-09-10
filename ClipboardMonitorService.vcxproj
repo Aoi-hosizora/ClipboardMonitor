@@ -106,6 +106,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClipItem.h" />
     <ClInclude Include="GeneratedFiles\ui_MainDialog.h" />
   </ItemGroup>
   <ItemGroup>
