@@ -33,6 +33,7 @@ protected:
 
 private:
 	Ui::MainDialogClass ui;
+
 	QMenu contextMenu;
 	QAction *copyAction;
 	QAction *deleteAction;
@@ -40,11 +41,12 @@ private:
 	QAction *HideAction;
 	QAction *ExitAction;
 
+private:
 	bool isExit;
 	const int WM_MYHOTKEY;
 	QList<ClipItem *> clipItemList;
 
-	void addClipItem();
+	void addClipItem(ClipItem * = nullptr);
 	int checkDuplicate(QString);
 	void initMenu();
 };

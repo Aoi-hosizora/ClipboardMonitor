@@ -59,6 +59,7 @@ void MainDialog::initMenu() {
 	ui.listWidget->setContextMenu(&contextMenu);
 }
 
+// Hotkey Show & Clip Monitor
 bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *result) {
 	Q_UNUSED(eventType)
 	Q_UNUSED(result)
@@ -81,6 +82,7 @@ bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *r
 
 MainDialog::~MainDialog() {}
 
+// Win Exit
 void MainDialog::closeEvent(QCloseEvent *e) {
 	if (isExit) {
 		UnregisterHotKey((HWND) this->winId(), WM_MYHOTKEY);
@@ -92,6 +94,7 @@ void MainDialog::closeEvent(QCloseEvent *e) {
 	}
 }
 
+// ESC Exit
 void MainDialog::keyPressEvent(QKeyEvent *event) {
 	switch (event->key()) {
 	case Qt::Key_Escape:
@@ -110,7 +113,8 @@ void MainDialog::on_listWidget_currentRowChanged(int row) {
 	deleteAction->setEnabled(ui.pushButton_Delete->isEnabled());
 }
 
-void MainDialog::addClipItem() {
+// Add ClipItem to List & QList
+void MainDialog::addClipItem(ClipItem *clip) {
 	QClipboard *clipboard = QApplication::clipboard();
 	// check clipbrd data type
 	if (clipboard->mimeData()->hasText()) {
@@ -124,6 +128,7 @@ void MainDialog::addClipItem() {
 
 		// new clipitem constant
 		auto newadd = new ClipItem(content);
+		if (clip != nullptr) newadd = clip;
 		clipItemList.append(newadd);
 		
 		// new ui constant
@@ -160,12 +165,11 @@ void MainDialog::on_pushButton_Delete_clicked() {
 
 // ÉNÉäÉA(&L)
 void MainDialog::on_pushButton_Clear_clicked() {
+	auto last = new ClipItem(*clipItemList.last());
 	ui.listWidget->clear();
-	for (auto iter = clipItemList.begin(); iter != clipItemList.end();) {
-		clipItemList.removeAll(*iter);
-	}
+	clipItemList.clear();
 	qDeleteAll(clipItemList);
-	addClipItem();
+	addClipItem(last);
 }
 
 // èIóπ(&X)
