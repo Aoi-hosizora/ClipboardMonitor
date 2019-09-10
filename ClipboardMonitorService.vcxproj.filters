@@ -58,6 +58,9 @@
     <ClInclude Include="ClipItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ListWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClipboardMonitorService.pri" />

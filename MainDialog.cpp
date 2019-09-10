@@ -11,6 +11,7 @@
 
 MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
 	ui.setupUi(this);
+	initMenu();
 	setWindowFlags(Qt::Window
 		| Qt::WindowCloseButtonHint
 		| Qt::WindowMinimizeButtonHint
@@ -26,7 +27,36 @@ MainDialog::MainDialog(QWidget *parent) : QDialog(parent), WM_MYHOTKEY(1) {
 	}
 
 	SetClipboardViewer((HWND) this->winId());
+
 	on_listWidget_currentRowChanged(-1);
+}
+
+void MainDialog::initMenu() {
+	copyAction = new QAction(tr("コピー(&C)"), this);
+	deleteAction = new QAction(tr("削除(&D)"), this);
+	clearAction = new QAction(tr("クリア(&L)"), this);
+	HideAction = new QAction(tr("キャンセル(&H)"), this);
+	ExitAction = new QAction(tr("終了(&X)"), this);
+
+	connect(copyAction, SIGNAL(triggered()), this, SLOT(on_pushButton_Copy_clicked()));
+	connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_pushButton_Delete_clicked()));
+	connect(clearAction, SIGNAL(triggered()), this, SLOT(on_pushButton_Clear_clicked()));
+	connect(HideAction, SIGNAL(triggered()), this, SLOT(on_pushButton_Cancel_clicked()));
+	connect(ExitAction, SIGNAL(triggered()), this, SLOT(on_pushButton_Exit_clicked()));
+
+	copyAction->setShortcut(QKeySequence("Ctrl+C"));
+	deleteAction->setShortcut(QKeySequence("Delete"));
+	clearAction->setShortcut(QKeySequence("Ctrl+Delete"));
+	HideAction->setShortcut(QKeySequence("Esc"));
+
+	contextMenu.addAction(copyAction);
+	contextMenu.addAction(deleteAction);
+	contextMenu.addAction(clearAction);
+	contextMenu.addSeparator();
+	contextMenu.addAction(HideAction);
+	contextMenu.addAction(ExitAction);
+
+	ui.listWidget->setContextMenu(&contextMenu);
 }
 
 bool MainDialog::nativeEvent(const QByteArray &eventType, void *message, long *result) {
@@ -74,25 +104,39 @@ void MainDialog::keyPressEvent(QKeyEvent *event) {
 }
 
 void MainDialog::on_listWidget_currentRowChanged(int row) {
-	ui.pushButton_Copy->setEnabled(row != -1);
-	ui.pushButton_Delete->setEnabled(row != -1);
+	int currRow = ui.listWidget->currentRow();
+	ui.pushButton_Copy->setEnabled(currRow != -1);
+	ui.pushButton_Delete->setEnabled(currRow != -1 && currRow != ui.listWidget->count() - 1);
+	deleteAction->setEnabled(ui.pushButton_Delete->isEnabled());
 }
 
 void MainDialog::addClipItem() {
 	QClipboard *clipboard = QApplication::clipboard();
+	// check clipbrd data type
 	if (clipboard->mimeData()->hasText()) {
-		auto newadd = new ClipItem(clipboard->text());
+		QString content = clipboard->text();
+		// check text already exist
+		int idx = checkDuplicate(content);
+		if (idx != -1) {
+			ui.listWidget->takeItem(idx);
+			clipItemList.removeAt(idx);
+		}
+
+		// new clipitem constant
+		auto newadd = new ClipItem(content);
 		clipItemList.append(newadd);
-
+		
+		// new ui constant
 		auto itm = new QListWidgetItem(ui.listWidget);
-
 		QString cnt = newadd->content;
 		itm->setText(QString("%1: \n%2")
 			.arg(newadd->copytime.toString("yyyy-MM-dd hh:mm:ss"))
 			.arg(cnt.replace(*new QRegExp("[\r|\n|\r\n]"), "")));
 		itm->setToolTip(newadd->content);
 
+		// add to ui & set selection
 		ui.listWidget->addItem(itm);
+		ui.listWidget->setCurrentRow(ui.listWidget->count() - 1);
 	}
 	ui.label_Koukei->setText(QString("(全部 %1 項)").arg(ui.listWidget->count()));
 }
@@ -133,4 +177,13 @@ void MainDialog::on_pushButton_Exit_clicked() {
 // キャンセル(&C)
 void MainDialog::on_pushButton_Cancel_clicked() {
 	this->close();
+}
+
+// Check already exist
+int MainDialog::checkDuplicate(QString content) {
+	foreach (auto item, clipItemList) {
+		if (item->content == content)
+			return clipItemList.indexOf(item);
+	}
+	return -1;
 }

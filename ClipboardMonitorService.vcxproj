@@ -108,6 +108,7 @@
   <ItemGroup>
     <ClInclude Include="ClipItem.h" />
     <ClInclude Include="GeneratedFiles\ui_MainDialog.h" />
+    <ClInclude Include="ListWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClipboardMonitorService.pri" />

@@ -51,10 +51,17 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Alt + F6 で開く</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="listWidget">
+    <widget class="ListWidget" name="listWidget">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -73,6 +80,9 @@
        <property name="text">
         <string>コピー(&amp;C)</string>
        </property>
+       <property name="shortcut">
+        <string>Ctrl+C</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -80,12 +90,18 @@
        <property name="text">
         <string>削除(&amp;D)</string>
        </property>
+       <property name="shortcut">
+        <string>Del</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Clear">
        <property name="text">
         <string>クリア(&amp;L)</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+Del</string>
        </property>
       </widget>
      </item>
@@ -112,7 +128,10 @@
      <item>
       <widget class="QPushButton" name="pushButton_Cancel">
        <property name="text">
-        <string>キャンセル(&amp;C)</string>
+        <string>キャンセル(&amp;H)</string>
+       </property>
+       <property name="shortcut">
+        <string>Esc</string>
        </property>
       </widget>
      </item>
@@ -121,6 +140,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ListWidget</class>
+   <extends>QListWidget</extends>
+   <header location="global">listwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>listWidget</tabstop>
   <tabstop>pushButton_Copy</tabstop>
@@ -128,8 +154,6 @@
   <tabstop>pushButton_Exit</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>
- <resources>
-  <include location="MainDialog.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -9,6 +9,7 @@
 #include "ClipItem.h"
 
 #include <QtWidgets/QDialog>
+#include <QMenu>
 
 class MainDialog : public QDialog {
 	Q_OBJECT
@@ -32,10 +33,20 @@ protected:
 
 private:
 	Ui::MainDialogClass ui;
+	QMenu contextMenu;
+	QAction *copyAction;
+	QAction *deleteAction;
+	QAction *clearAction;
+	QAction *HideAction;
+	QAction *ExitAction;
+
 	bool isExit;
 	const int WM_MYHOTKEY;
 	QList<ClipItem *> clipItemList;
+
 	void addClipItem();
+	int checkDuplicate(QString);
+	void initMenu();
 };
 
 #endif // MAINDIALOG_H
